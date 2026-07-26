@@ -69,7 +69,7 @@ jobs:
             mingw-w64-x86_64-spdlog
             mingw-w64-x86_64-python
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DGST_BASE_PATH="$MSYSTEM_PREFIX"
       - name: Build
         run: cmake --build build --parallel
       - name: Test
