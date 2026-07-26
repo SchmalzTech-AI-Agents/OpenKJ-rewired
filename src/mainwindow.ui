@@ -2279,22 +2279,6 @@ QPushButton:default {
                 <number>0</number>
                </property>
                <item>
-                <widget class="QPushButton" name="pushButtonShop">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Open the song shop</string>
-                 </property>
-                 <property name="text">
-                  <string>Song Shop</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QPushButton" name="btnToggleCdgWindow">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -3398,8 +3382,6 @@ QPushButton:default {
     <addaction name="actionExport_Regulars"/>
     <addaction name="actionIncoming_Requests"/>
     <addaction name="actionAutoplay_mode"/>
-    <addaction name="separator"/>
-    <addaction name="actionSong_Shop"/>
    </widget>
    <widget class="QMenu" name="menuBreak_Music">
     <property name="title">
@@ -3583,11 +3565,6 @@ QPushButton:default {
   <action name="actionEqualizer">
    <property name="text">
     <string>Equalizer</string>
-   </property>
-  </action>
-  <action name="actionSong_Shop">
-   <property name="text">
-    <string>Song Shop</string>
    </property>
   </action>
   <action name="actionShow_Debug_Log">

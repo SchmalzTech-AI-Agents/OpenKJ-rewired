@@ -434,7 +434,6 @@ set(SOURCE_FILES
         src/models/tablemodelqueuesongs.cpp
         src/models/tablemodelrequests.cpp
         src/models/tablemodelrotation.cpp
-        src/models/tablemodelsongshopsongs.cpp
         src/tagreader.cpp
         src/bmdbupdatethread.cpp
         src/settings.cpp
@@ -452,13 +451,6 @@ set(SOURCE_FILES
         src/videodisplay.cpp
         src/volslider.cpp
         src/dlgaddsinger.cpp
-        src/songshop.cpp
-        src/dlgsongshop.cpp
-        src/simplecrypt.cpp
-        src/dlgsongshoppurchase.cpp
-        src/dlgsetpassword.cpp
-        src/dlgpassword.cpp
-        src/dlgpurchaseprogress.cpp
         src/karaokefileinfo.cpp
         src/karaokefilepatternresolver.cpp
         src/custompattern.cpp
@@ -495,7 +487,6 @@ set(SOURCE_FILES
         src/models/tablemodelqueuesongs.h
         src/models/tablemodelrequests.h
         src/models/tablemodelrotation.h
-        src/models/tablemodelsongshopsongs.h
         src/tagreader.h
         src/bmdbupdatethread.h
         src/settings.h
@@ -514,13 +505,6 @@ set(SOURCE_FILES
         src/volslider.h
         src/okjversion.h
         src/dlgaddsinger.h
-        src/songshop.h
-        src/dlgsongshop.h
-        src/simplecrypt.h
-        src/dlgsongshoppurchase.h
-        src/dlgsetpassword.h
-        src/dlgpassword.h
-        src/dlgpurchaseprogress.h
         src/karaokefileinfo.h
         src/karaokefilepatternresolver.h
         src/custompattern.h
@@ -546,11 +530,6 @@ set(SOURCE_FILES
         src/dlgbookcreator.ui
         src/dlgeq.ui
         src/dlgaddsinger.ui
-        src/dlgsongshop.ui
-        src/dlgsongshoppurchase.ui
-        src/dlgsetpassword.ui
-        src/dlgpassword.ui
-        src/dlgpurchaseprogress.ui
         src/dlgeditsong.ui
         src/dlgvideopreview.ui
         src/resources.qrc

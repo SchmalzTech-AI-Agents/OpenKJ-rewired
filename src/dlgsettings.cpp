@@ -217,7 +217,6 @@ DlgSettings::DlgSettings(MediaBackend &AudioBackend, MediaBackend &BmAudioBacken
     ui->cbxStopPauseWarning->setChecked(m_settings.showSongPauseStopWarning());
     ui->cbxCheckUpdates->setChecked(m_settings.checkUpdates());
     ui->comboBoxUpdateBranch->setCurrentIndex(m_settings.updatesBranch());
-    ui->lineEditDownloadsDir->setText(m_settings.storeDownloadDir());
     ui->lineEditLogDir->setText(m_settings.logDir());
     ui->checkBoxEnforceAspectRatio->setChecked(m_settings.enforceAspectRatio());
     ui->checkBoxTreatAllSingersAsRegs->setChecked(m_settings.treatAllSingersAsRegs());
@@ -753,35 +752,6 @@ void DlgSettings::on_cbxTheme_currentIndexChanged(int index) {
     if (!m_pageSetupDone)
         return;
     m_settings.setTheme(index);
-}
-
-void DlgSettings::on_btnBrowse_clicked() {
-#ifdef Q_OS_LINUX
-    QString fileName = QFileDialog::getExistingDirectory(
-            this,
-            "Select directory to put store downloads in",
-            m_settings.storeDownloadDir(),
-            QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog
-    );
-#else
-    QString fileName = QFileDialog::getExistingDirectory(
-            this,
-            "Select directory to put store downloads in",
-            m_settings.storeDownloadDir(),
-            QFileDialog::ShowDirsOnly
-    );
-#endif
-    if (fileName != "") {
-        QFileInfo fi(fileName);
-        if (!fi.isWritable() || !fi.isReadable()) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Directory not writable!");
-            msgBox.setText("You do not have permission to write to the selected directory, aborting.");
-            msgBox.exec();
-        }
-        m_settings.setStoreDownloadDir(fileName + QDir::separator());
-        ui->lineEditDownloadsDir->setText(fileName + QDir::separator());
-    }
 }
 
 void DlgSettings::on_fontComboBox_currentFontChanged(const QFont &f) {

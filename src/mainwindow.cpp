@@ -584,7 +584,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::setApplicationName("OpenKJ");
     ui->setupUi(this);
     setMouseTracking(true);
-    m_songShop = std::make_unique<SongShop>(this);
     m_lazyDurationUpdater = std::make_unique<LazyDurationUpdateController>(this);
     ui->tableViewBmPlaylist->setMouseTracking(true);
     m_historyTabWidget = ui->tabWidgetQueue->widget(1);
@@ -649,8 +648,6 @@ MainWindow::MainWindow(QWidget *parent) :
     dlgKeyChange = std::make_unique<DlgKeyChange>(&m_qModel, this);
     requestsDialog = std::make_unique<DlgRequests>(m_rotModel, m_songbookApi);
     requestsDialog->setModal(false);
-    dlgSongShop = std::make_unique<DlgSongShop>(m_songShop);
-    dlgSongShop->setModal(false);
     ui->tableViewDB->setModel(&m_karaokeSongsModel);
     ui->tableViewDB->viewport()->installEventFilter(new TableViewToolTipFilter(ui->tableViewDB));
     if (!MediaBackend::canPitchShift()) {
@@ -752,7 +749,6 @@ void MainWindow::loadSettings() {
     m_settings.restoreSplitterState(ui->splitter);
     m_settings.restoreSplitterState(ui->splitter_2);
     m_settings.restoreSplitterState(ui->splitterBm);
-    m_settings.restoreWindowState(dlgSongShop.get());
     m_bmCurrentPlaylist = m_settings.bmPlaylistIndex();
     ui->comboBoxBmPlaylists->setCurrentIndex(m_settings.bmPlaylistIndex());
     ui->actionDisplay_Filenames->setChecked(m_settings.bmShowFilenames());
@@ -886,7 +882,6 @@ void MainWindow::setupConnections() {
     connect(&m_mediaBackendSfx, &MediaBackend::durationChanged, this, &MainWindow::sfxAudioBackend_durationChanged);
     connect(&m_mediaBackendSfx, &MediaBackend::stateChanged, this, &MainWindow::sfxAudioBackend_stateChanged);
     connect(&m_rotModel, &TableModelRotation::rotationModified, this, &MainWindow::rotationDataChanged, Qt::QueuedConnection);
-    connect(m_songShop.get(), &SongShop::karaokeSongDownloaded, dbDialog.get(), &DlgDatabase::singleSongAdd);
     connect(ui->pushButtonTempoDn, &QPushButton::clicked, ui->spinBoxTempo, &QSpinBox::stepDown);
     connect(ui->pushButtonTempoUp, &QPushButton::clicked, ui->spinBoxTempo, &QSpinBox::stepUp);
     connect(ui->pushButtonKeyDn, &QPushButton::clicked, ui->spinBoxKey, &QSpinBox::stepDown);
@@ -911,7 +906,6 @@ void MainWindow::setupConnections() {
     connect(m_updateChecker.get(), &UpdateChecker::newVersionAvailable, this, &MainWindow::newVersionAvailable);
     connect(&m_timerButtonFlash, &QTimer::timeout, this, &MainWindow::timerButtonFlashTimeout);
 
-    connect(ui->actionSong_Shop, &QAction::triggered, [&]() { show(); });
     connect(&m_qModel, &TableModelQueueSongs::filesDroppedOnSinger, this, &MainWindow::filesDroppedOnQueue);
     connect(ui->tableViewRotation->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &MainWindow::tableViewRotationCurrentChanged);
@@ -1046,8 +1040,6 @@ void MainWindow::setupConnections() {
             dlgEq->raise();
     });
     connect(ui->pushButtonIncomingRequests, &QPushButton::clicked, requestsDialog.get(), &DlgRequests::show);
-    connect(ui->pushButtonShop, &QPushButton::clicked, dlgSongShop.get(), &DlgSongShop::show);
-    connect(ui->actionSong_Shop, &QAction::triggered, dlgSongShop.get(), &DlgSongShop::show);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabWidgetCurrentChanged);
     connect(ui->sliderBmPosition, &QSlider::sliderPressed, this, &MainWindow::sliderBmPositionPressed);
     connect(ui->sliderBmPosition, &QSlider::sliderReleased, this, &MainWindow::sliderBmPositionReleased);
@@ -1413,7 +1405,6 @@ MainWindow::~MainWindow() {
     m_settings.saveColumnWidths(ui->tableViewDB);
     m_settings.saveColumnWidths(ui->tableViewRotation);
     m_settings.saveWindowState(requestsDialog.get());
-    m_settings.saveWindowState(dlgSongShop.get());
     m_settings.saveWindowState(dbDialog.get());
     m_settings.saveWindowState(this);
     m_settings.saveSplitterState(ui->splitterBm);
@@ -3179,7 +3170,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         m_settings.saveWindowState(cdgWindow.get());
     m_settings.setShowCdgWindow(cdgWindow->isVisible());
     cdgWindow->setVisible(false);
-    dlgSongShop->setVisible(false);
     requestsDialog->setVisible(false);
     event->accept();
 }

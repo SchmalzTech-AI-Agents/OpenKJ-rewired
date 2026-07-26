@@ -52,8 +52,6 @@
 #include "dlgeq.h"
 #include "updatechecker.h"
 #include "dlgaddsinger.h"
-#include "dlgsongshop.h"
-#include "songshop.h"
 #include "durationlazyupdater.h"
 #include "dlgvideopreview.h"
 #include "src/models/tablemodelhistorysongs.h"
@@ -114,7 +112,6 @@ private:
     std::unique_ptr<DlgDatabase> dbDialog;
     std::unique_ptr<DlgKeyChange> dlgKeyChange;
     std::unique_ptr<DlgRequests> requestsDialog;
-    std::unique_ptr<DlgSongShop> dlgSongShop;
     std::unique_ptr<BmDbDialog> bmDbDialog;
     DlgRegularSingers m_dlgRegularSingers{&m_rotModel, this};
     MediaBackend m_mediaBackendKar{this, "KAR", MediaBackend::Karaoke};
@@ -155,7 +152,6 @@ private:
     QShortcut m_scutDeletePlSong{nullptr};
     std::unique_ptr<LazyDurationUpdateController> m_lazyDurationUpdater;
     std::unique_ptr<QTemporaryDir> m_mediaTempDir;
-    std::shared_ptr<SongShop> m_songShop;
     std::unique_ptr<UpdateChecker> m_updateChecker;
     OKJSongbookAPI m_songbookApi;
     QWidget *m_historyTabWidget;
