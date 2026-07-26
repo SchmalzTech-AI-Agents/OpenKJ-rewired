@@ -199,7 +199,7 @@ Settings::Settings(QObject *parent) :
     // Qt 5 stored the original settings at %LOCALAPPDATA%\\OpenKJ\\openkj.ini.
     // Keep using that file when the Qt 6 location has not been initialized yet.
     const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
-            .absoluteFilePath("OpenKJ" + QDir::separator() + "openkj.ini");
+            .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + QStringLiteral("openkj.ini"));
     if (!QFileInfo::exists(settingsPath) && QFileInfo::exists(legacySettingsPath))
     {
         settingsPath = legacySettingsPath;
