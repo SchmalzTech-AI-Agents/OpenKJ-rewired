@@ -45,7 +45,7 @@ On Ubuntu 24.04, install the toolchain and development packages:
 ```bash
 sudo apt update
 sudo apt install -y build-essential cmake ninja-build pkg-config python3 \
-  qt6-base-dev qt6-tools-dev libqt6svg6-dev \
+  qt6-base-dev qt6-tools-dev qt6-svg-dev \
   libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
   libtag1-dev libspdlog-dev
 ```

@@ -551,14 +551,14 @@ set(SOURCE_FILES
 
 set(LIBRARIES
         spdlog
-        Qt5::Widgets
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Sql
-        Qt5::Network
-        Qt5::Svg
-        Qt5::PrintSupport
-        Qt5::Concurrent
+        Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Gui
+        Qt${QT_VERSION_MAJOR}::Sql
+        Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::Svg
+        Qt${QT_VERSION_MAJOR}::PrintSupport
+        Qt${QT_VERSION_MAJOR}::Concurrent
         )
 
 
