@@ -6,6 +6,7 @@
 #include <QMutex>
 #include <QApplication>
 #include <QTextStream>
+#include <QFile>
 #include <utility>
 #include <QTimer>
 #include <chrono>
