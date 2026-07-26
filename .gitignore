@@ -49,6 +49,10 @@ CMakeLists.txt.user*
 # Don't include binary
 openKJ/OpenKJ
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Visual Studio
 CMakeSettings.json
 .vs
