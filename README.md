@@ -1,89 +1,117 @@
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/OpenKJ/OpenKJ.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/OpenKJ/OpenKJ/context:cpp)
-[![Copr build status](https://copr.fedorainfracloud.org/coprs/openkj/OpenKJ-unstable/package/openkjtools/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/openkj/OpenKJ-unstable/package/openkjtools/)
-[![Windows Build](https://github.com/OpenKJ/OpenKJ/actions/workflows/windows-test.yml/badge.svg)](https://github.com/OpenKJ/OpenKJ/actions/workflows/windows-test.yml)
-[![Test building on macOS](https://github.com/OpenKJ/OpenKJ/actions/workflows/macos-test.yml/badge.svg)](https://github.com/OpenKJ/OpenKJ/actions/workflows/macos-test.yml)
+# OpenKJ Rewired
 
-**Downloads**  
-If you are looking for installers for Windows or macOS, please visit the Downloads section at https://openkj.org
+OpenKJ Rewired is a modernized, maintainable continuation of OpenKJ, a desktop karaoke show-hosting application for managing singers, song libraries, requests, rotation, karaoke media, and break music.
 
-Linux users can grab OpenKJ stable versions from flathub: https://flathub.org/apps/details/org.openkj.OpenKJ
+This project is a modified/modernized derivative of the original OpenKJ codebase. It respectfully preserves the foundation and prior work of the late **T. Isaac Lightburn** and the original OpenKJ contributors. They deserve clear attribution; the original contributors did not participate in this continuation unless explicitly stated in a future contribution record.
 
-If you would like to install Linux versions of the unstable builds, please refer to the OpenKJ documentation wiki.
+## Features
 
-Documentation can be found at https://docs.openkj.org
+- Song database management with custom filename patterns
+- Regular singers, rotation handling, requests, and export tools
+- CDG karaoke playback, video playback, and break music
+- Key, tempo, EQ, volume, and playback controls
+- Recording where supported by the host platform and GStreamer
+- Persistent settings, window geometry, splitter state, and table/header layouts
+- Reset Column Widths behavior
+- High-DPI-aware desktop UI with centralized visual styling and existing light/dark theme support
+- Retired SongShop, payment, account, and purchase functionality remains absent
 
-* Flatpak based install on Ubuntu 18.10 or later:
+## Supported platforms
 
-1. Install flatpak on Ubuntu:
+- Modern 64-bit Linux (validated locally on Ubuntu 24.04 toolchain packages)
+- Windows 64-bit (GitHub Actions uses `windows-2022`)
 
+macOS files remain in history as historical project material but are not a supported target of this rewired build.
+
+## System requirements
+
+Runtime requirements are Qt Widgets, Qt SQL, Qt Network, Qt SVG, GStreamer 1.x, TagLib, and spdlog. A working audio/video device and GStreamer plugins are required for media playback. Use a 64-bit OS and current graphics/audio drivers.
+
+## Development prerequisites
+
+- CMake 3.24 or newer
+- C++20 compiler (GCC 13+, Clang 16+, or current MSVC/MinGW)
+- Ninja 1.11+ recommended (Makefiles also work on Linux)
+- Qt 6 development packages preferred; Qt 5.15 remains a compatibility fallback during migration
+- GStreamer 1.x development packages and runtime plugins
+- TagLib and spdlog development packages
+- Python 3 for repository invariant tests
+- Git with submodule support
+
+## Linux dependency installation
+
+On Ubuntu 24.04, install the toolchain and development packages:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake ninja-build pkg-config python3 \
+  qt6-base-dev qt6-tools-dev libqt6svg6-dev \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  libtag1-dev libspdlog-dev
 ```
-  $ sudo apt install flatpak
-  $ sudo add-apt-repository ppa:flatpak/stable
-  $ sudo apt update
-  $ sudo apt install flatpak
-  $ sudo apt install gnome-software-plugin-flatpak
-```
-2. Choose Stable or Unstable
-  * To Add OpenKJ Stable:
- ``` 
-  $ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  $ flatpak install flathub org.openkj.OpenKJ
-```
-  * To Instead Add OpenKJ Unstable:
-```
-  $ flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-  $ flatpak install flathub-beta org.openkj.OpenKJ
-```
-3. Run OpenKJ
-```
-  $ flatpak run org.openkj.OpenKJ
+
+If Qt 6 is unavailable on a distribution, install the equivalent Qt 5.15 development packages. CMake selects Qt 6 first and falls back to Qt 5.
+
+## Linux build and test
+
+Use a clean out-of-tree build:
+
+```bash
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
 ```
 
-If you need help with OpenKJ, you can reach out to support@openkj.org via email.
+When Ninja is unavailable, replace `-G Ninja` with `-G 'Unix Makefiles'`. The build uses system GStreamer and TagLib when available. spdlog uses the pinned CMake fallback by default because the existing code targets the bundled fmt ABI; set `-DOPENKJ_USE_SYSTEM_SPDLOG=ON` only after validating the distribution's spdlog/fmt combination.
 
-OpenKJ
-======
+Run after building:
 
-Cross-platform open source karaoke show hosting software.
+```bash
+QT_QPA_PLATFORM=offscreen ./build/openkj
+```
 
-OpenKJ is a fully featured karaoke hosting program.
-A few features:
-* Save/track/load regular singers
-* Key changer
-* Tempo control
-* EQ
-* End of track silence detection (after last CDG draw command)
-* Rotation ticker on the CDG display
-* Option to use a custom background or display a rotating slide show on the CDG output dialog while idle
-* Fades break music in and out automatically when karaoke tracks start/end
-* Remote request server integration allowing singers to look up and submit songs via the web or mobile apps
-* Automatic performance recording
-* Autoplay karaoke mode
-* Lots of other little things
+The application is interactive and normally stays running until closed. Do not use an offscreen run as a media-playback test; verify playback with a real desktop session and installed GStreamer plugins.
 
-It currently handles media+g zip files (zip files containing an mp3, wav, or ogg file and a cdg file) and paired mp3 and cdg files.  I'll be adding others in the future if anyone expresses interest.  It also can play non-cdg based video files (mkv, mp4, mpg, avi) for both break music and karaoke.
+## Windows build
 
-Database entries for the songs are based on the file naming scheme.  I've included the common ones I've come across which should cover 90% of what's out there. Custom patterns can be also defined in the program using regular expressions.
+Use a x64 Visual Studio Developer PowerShell or a MinGW environment with Qt 6 x64, GStreamer x64 development/runtime packages, CMake, and Ninja installed. From PowerShell:
 
+```powershell
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
 
+The Windows CI workflow installs a 64-bit Qt toolchain, installs current compatible GStreamer packages, builds with CMake/Ninja, runs tests, deploys Qt runtime files where available, and uploads a verifiable artifact. No 32-bit Windows matrix is retained.
 
-**Requirements to build OpenKJ:**
+## Packaging and deployment
 
-* Qt 5.x
-* gstreamer 1.4 or above
-* spdlog
-* taglib
+Linux staging can be produced with:
 
-**Linux**
+```bash
+cmake --install build --prefix "$PWD/dist"
+```
 
-Build using cmake from the command line or in your IDE of choice
+For Windows, use `windeployqt` from the selected Qt installation and copy the matching GStreamer runtime DLLs and plugin directory beside the executable. CI packages these files into an artifact when the runner dependencies are available.
 
-**Mac**
+## Troubleshooting
 
-Building now works on OS X in Qt Creator using the native xcode compiler.  Use the latest stable version of the GStreamer SDK from http://gstreamer.freedesktop.org.
+- **Qt not found:** confirm `Qt6Config.cmake` or the Qt 5 equivalent is on `CMAKE_PREFIX_PATH`; delete the build directory after changing Qt installations.
+- **GStreamer not found:** verify `pkg-config --modversion gstreamer-1.0` on Linux. On Windows, verify the x64 development package and that its include/lib locations are visible to CMake.
+- **GStreamer starts but media is silent:** install the platform's base/good/bad/ugly plugin sets and check the selected audio device.
+- **CMake uses stale dependencies:** remove `build/` and reconfigure; do not mix Qt architectures in one build directory.
+- **Compiler errors after a Qt upgrade:** rebuild generated MOC/UIC files from a clean directory and check for a missing Qt module in the configure output.
+- **High-DPI layout issues:** use a current Qt platform plugin and test at more than 100% display scaling; avoid hard-coded window sizes when adding UI.
+- **Windows runtime failure:** run `windeployqt`, copy GStreamer DLLs/plugins matching the executable architecture, and ensure no 32-bit package is earlier on `PATH`.
 
+## Licensing and attribution
 
-**Windows**
+OpenKJ Rewired is distributed under **GNU GPLv3**. The root `LICENSE`, `src/LICENSE`, and `src/cdg/LICENSE` files are preserved. Existing source copyright and attribution notices remain intact. New and modified code is part of this GPLv3 derivative unless a file states otherwise.
 
-Building now works on Windows in Qt Creator using the msvc build system (both 32 and 64 bit).  Use the latest stable version of the GStreamer SDK from http://gstreamer.freedesktop.org.  You will likely need to modify the paths in the OpenKJ.pro file to match your devel environment.  Installers can be found at http://openkj.org/ if you just want to run the software and not build it yourself or help out with development.
+This work is based on OpenKJ and the original contributions of the late T. Isaac Lightburn and other OpenKJ contributors. OpenKJ Rewired does not claim that those contributors participated in this project.
 
+See `THIRD_PARTY_NOTICES.md` for dependency notices and license locations. Do not add proprietary or credential-bearing files to this repository.
+
+## Contributing
+
+Keep changes incremental and buildable. Preserve karaoke workflow behavior, settings migration compatibility, table layout persistence/reset behavior, active-video clearing, and GPLv3 notices. Add a focused regression test for behavior changes, run configure/build/CTest, run `git diff --check`, and describe platform-specific limitations in the pull request. Do not reintroduce payment, account, purchase, SongShop, password, or card-data features.
