@@ -26,14 +26,14 @@ jobs:
             qtarch: win64_msvc2019_64
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - uses: seanmiddleditch/gha-setup-ninja@master
 
     - name: Cache GStreamer
       id: cache-gst
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           C:/gstreamer
@@ -70,7 +70,7 @@ jobs:
 
     - name: Cache Qt
       id: cache-qt
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
        path: "D:/a/OpenKJ/Qt"
        key: ${{ runner.os }}-QtCache-5.15.2-${{ matrix.arch }}-2
@@ -103,7 +103,7 @@ jobs:
       run: cmake --build . --parallel 4
 
     - name: Upload executable artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Windows ${{ matrix.arch }} binary
         path: build/openkj.exe
