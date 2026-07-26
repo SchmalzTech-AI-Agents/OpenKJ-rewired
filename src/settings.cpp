@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFileInfo>
 #include <QFontDatabase>
 #include <QUuid>
 #include <fstream>
@@ -193,7 +194,18 @@ Settings::Settings(QObject *parent) :
     {
         khDir.mkpath(khDir.absolutePath());
     }
-    settings = new QSettings(khDir.absolutePath() + QDir::separator() + "openkj.ini", QSettings::IniFormat);
+    QString settingsPath = khDir.absoluteFilePath("openkj.ini");
+#ifdef Q_OS_WIN
+    // Qt 5 stored the original settings at %LOCALAPPDATA%\\OpenKJ\\openkj.ini.
+    // Keep using that file when the Qt 6 location has not been initialized yet.
+    const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
+            .absoluteFilePath("OpenKJ" + QDir::separator() + "openkj.ini");
+    if (!QFileInfo::exists(settingsPath) && QFileInfo::exists(legacySettingsPath))
+    {
+        settingsPath = legacySettingsPath;
+    }
+#endif
+    settings = new QSettings(settingsPath, QSettings::IniFormat);
 #endif
 
     // Remove credentials and card data left by the retired song-purchase feature.
