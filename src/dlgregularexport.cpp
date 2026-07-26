@@ -37,12 +37,14 @@ DlgRegularExport::DlgRegularExport(TableModelKaraokeSongs &karaokeSongsModel, QW
     ui(new Ui::DlgRegularExport)
 {
     ui->setupUi(this);
-    ui->tableViewRegulars->setModel(&m_historySingersModel);
-    ui->tableViewRegulars->hideColumn(0);
-    ui->tableViewRegulars->hideColumn(2);
-    ui->tableViewRegulars->hideColumn(3);
-    ui->tableViewRegulars->hideColumn(4);
-    ui->tableViewRegulars->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    ui->tableViewRegularsExport->setModel(&m_historySingersModel);
+    ui->tableViewRegularsExport->hideColumn(0);
+    ui->tableViewRegularsExport->hideColumn(2);
+    ui->tableViewRegularsExport->hideColumn(3);
+    ui->tableViewRegularsExport->hideColumn(4);
+    ui->tableViewRegularsExport->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    m_settings.restoreColumnWidths(ui->tableViewRegularsExport);
+    m_settings.trackColumnWidths(ui->tableViewRegularsExport);
 }
 
 DlgRegularExport::~DlgRegularExport()
@@ -57,7 +59,7 @@ void DlgRegularExport::on_pushButtonClose_clicked()
 
 void DlgRegularExport::on_pushButtonExport_clicked()
 {
-    auto rowIndexes = ui->tableViewRegulars->selectionModel()->selectedRows();
+    auto rowIndexes = ui->tableViewRegularsExport->selectionModel()->selectedRows();
     if (rowIndexes.size() == 0)
         return;
     std::vector<int> historySingerIds;
@@ -81,7 +83,7 @@ void DlgRegularExport::on_pushButtonExport_clicked()
         msgBox->close();
         delete msgBox;
         QMessageBox::information(this, tr("Export complete"), tr("Regular singer export complete."));
-        ui->tableViewRegulars->clearSelection();
+        ui->tableViewRegularsExport->clearSelection();
     }
 }
 
@@ -110,7 +112,7 @@ void DlgRegularExport::on_pushButtonExportAll_clicked()
             msgBox->close();
             delete msgBox;
             QMessageBox::information(this, tr("Export complete"), tr("Regular singer export complete."));
-            ui->tableViewRegulars->clearSelection();
+            ui->tableViewRegularsExport->clearSelection();
         }
     }
 }

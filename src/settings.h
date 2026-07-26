@@ -100,6 +100,9 @@ public:
     void restoreWindowState(QWidget *window);
     void saveColumnWidths(QTreeView *treeView);
     void saveColumnWidths(QTableView *tableView);
+    void trackColumnWidths(QTableView *tableView);
+    void resetColumnWidths(QTableView *tableView);
+    void resetColumnWidths(const QString &objectName);
     void restoreColumnWidths(QTreeView *treeView);
     bool restoreColumnWidths(QTableView *tableView);
     void saveSplitterState(QSplitter *splitter);

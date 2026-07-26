@@ -32,6 +32,8 @@ BmDbDialog::BmDbDialog(QWidget *parent) :
     m_pathsModel.setTable("bmsrcdirs");
     m_pathsModel.select();
     ui->tableViewPaths->setModel(&m_pathsModel);
+    m_settings.restoreColumnWidths(ui->tableViewPaths);
+    m_settings.trackColumnWidths(ui->tableViewPaths);
     m_pathsModel.sort(0, Qt::AscendingOrder);
     connect(ui->pushButtonAdd, &QPushButton::clicked, this, &BmDbDialog::pushButtonAddClicked);
     connect(ui->pushButtonClearDb, &QPushButton::clicked, this, &BmDbDialog::pushButtonClearDbClicked);

@@ -23,6 +23,7 @@ DlgCustomPatterns::DlgCustomPatterns(QWidget *parent) :
     ui->setupUi(this);
     ui->tableViewPatterns->setModel(&m_patternsModel);
     m_settings.restoreColumnWidths(ui->tableViewPatterns);
+    m_settings.trackColumnWidths(ui->tableViewPatterns);
     m_settings.restoreWindowState(this);
     connect(ui->lineEditArtistRegEx, &QLineEdit::textChanged, this, &DlgCustomPatterns::evaluateRegEx);
     connect(ui->lineEditTitleRegEx, &QLineEdit::textChanged, this, &DlgCustomPatterns::evaluateRegEx);

@@ -699,10 +699,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_logger->info("{} Initial UI setup complete", m_loggingPrefix);
     QApplication::processEvents();
     appFontChanged(m_settings.applicationFont());
-    QTimer::singleShot(500, [&]() {
-        autosizeViews();
-        autosizeBmViews();
-    });
     m_dlgRegularSingers.regularsChanged();
     m_dlgRegularSingers.setModal(false);
     updateRotationDuration();
@@ -841,16 +837,27 @@ void MainWindow::loadSettings() {
     // something to do with it needing to be set after the window is finished building.
     QTimer::singleShot(250, [&] () {
         appFontChanged(m_settings.applicationFont());
+        autosizeViews();
+        autosizeBmViews();
         m_settings.restoreColumnWidths(ui->tableViewDB);
         m_settings.restoreColumnWidths(ui->tableViewQueue);
+        m_settings.restoreColumnWidths(ui->tableViewHistory);
+        m_settings.restoreColumnWidths(ui->tableViewRotation);
+        m_settings.restoreColumnWidths(ui->tableViewBmDb);
+        m_settings.restoreColumnWidths(ui->tableViewBmPlaylist);
+        m_settings.trackColumnWidths(ui->tableViewDB);
+        m_settings.trackColumnWidths(ui->tableViewQueue);
+        m_settings.trackColumnWidths(ui->tableViewHistory);
+        m_settings.trackColumnWidths(ui->tableViewRotation);
+        m_settings.trackColumnWidths(ui->tableViewBmDb);
+        m_settings.trackColumnWidths(ui->tableViewBmPlaylist);
     });
 }
 
 void MainWindow::setupConnections() {
     connect(ui->tabWidgetQueue, &QTabWidget::currentChanged, [&] (auto tab) {
        if (tab == 1) {
-           QApplication::processEvents();
-           ui->tableViewHistory->resizeColumnsToContents();
+           m_settings.restoreColumnWidths(ui->tableViewHistory);
        }
     });
     connect(cdgWindow.get(), &DlgCdg::visibilityChanged, ui->btnToggleCdgWindow, &QPushButton::setChecked);
@@ -982,6 +989,7 @@ void MainWindow::setupConnections() {
     connect(ui->actionExport_Regulars, &QAction::triggered, this, &MainWindow::actionExportRegularsTriggered);
     connect(ui->actionImport_Regulars, &QAction::triggered, this, &MainWindow::actionImportRegularsTriggered);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::actionSettingsTriggered);
+    connect(ui->actionReset_Column_Widths, &QAction::triggered, this, &MainWindow::resetColumnWidthsTriggered);
     connect(ui->actionRegulars, &QAction::triggered, &m_dlgRegularSingers, &DlgRegularSingers::showNormal);
     connect(ui->actionIncoming_Requests, &QAction::triggered, requestsDialog.get(), &DlgRequests::show);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::search);
@@ -1731,6 +1739,34 @@ void MainWindow::actionImportRegularsTriggered() {
     auto iDialog = new DlgRegularImport(m_karaokeSongsModel, this);
     iDialog->setModal(true);
     iDialog->show();
+}
+
+void MainWindow::resetColumnWidthsTriggered() {
+    const QList<QTableView *> tables{
+        ui->tableViewDB,
+        ui->tableViewQueue,
+        ui->tableViewHistory,
+        ui->tableViewRotation,
+        ui->tableViewBmDb,
+        ui->tableViewBmPlaylist
+    };
+    for (auto *table : tables)
+        m_settings.resetColumnWidths(table);
+    for (const auto &objectName : {
+             QStringLiteral("tableViewRequests"),
+             QStringLiteral("tableViewSearch"),
+             QStringLiteral("tableViewFolders"),
+             QStringLiteral("tableViewPatterns"),
+             QStringLiteral("tableViewRegulars"),
+             QStringLiteral("tableViewRegularsExport"),
+             QStringLiteral("tableViewPaths")
+         })
+        m_settings.resetColumnWidths(objectName);
+
+    autosizeViews();
+    autosizeBmViews();
+    for (auto *table : tables)
+        m_settings.saveColumnWidths(table);
 }
 
 void MainWindow::actionSettingsTriggered() {
@@ -2863,14 +2899,12 @@ void MainWindow::actionDisplayMetadataToggled(const bool &arg1) {
     ui->tableViewBmPlaylist->setColumnHidden(TableModelPlaylistSongs::COL_ARTIST, !arg1);
     ui->tableViewBmPlaylist->setColumnHidden(TableModelPlaylistSongs::COL_TITLE, !arg1);
     m_settings.bmSetShowMetadata(arg1);
-    autosizeBmViews();
 }
 
 void MainWindow::actionDisplayFilenamesToggled(const bool &arg1) {
     ui->tableViewBmDb->setColumnHidden(TableModelBreakSongs::COL_FILENAME, !arg1);
     ui->tableViewBmPlaylist->setColumnHidden(TableModelPlaylistSongs::COL_FILENAME, !arg1);
     m_settings.bmSetShowFilenames(arg1);
-    autosizeBmViews();
 }
 
 void MainWindow::actionPlaylistNewTriggered() {
@@ -3315,7 +3349,6 @@ void MainWindow::appFontChanged(const QFont &font) {
     ui->buttonBmPause->setIconSize(mcbSize);
     ui->buttonBmStop->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
     ui->buttonBmPause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-    autosizeViews();
 }
 
 void MainWindow::autosizeRotationCols() {
@@ -3449,30 +3482,10 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     if (!m_initialUiSetupDone)
         return;
     QMainWindow::resizeEvent(event);
-    autosizeViews();
-    autosizeBmViews();
-    if (ui->tabWidget->currentIndex() == 0) {
-        autosizeViews();
-        m_bNeedAutoSize = true;
-        m_kNeedAutoSize = false;
-    }
-    if (ui->tabWidget->currentIndex() == 1) {
-        autosizeBmViews();
-        m_bNeedAutoSize = false;
-        m_kNeedAutoSize = true;
-    }
     m_settings.saveWindowState(this);
 }
 
-void MainWindow::tabWidgetCurrentChanged(const int &index) {
-    if (m_bNeedAutoSize && index == 1) {
-        autosizeBmViews();
-        m_bNeedAutoSize = false;
-    }
-    if (m_kNeedAutoSize && index == 0) {
-        autosizeViews();
-        m_kNeedAutoSize = false;
-    }
+void MainWindow::tabWidgetCurrentChanged([[maybe_unused]] const int &index) {
 }
 
 void MainWindow::bmDatabaseAboutToUpdate() {

@@ -48,6 +48,8 @@ DlgRegularSingers::DlgRegularSingers(TableModelRotation *rotationModel, QWidget 
     ui->tableViewRegulars->horizontalHeader()->resizeSection(4, 20);
     ui->tableViewRegulars->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
     ui->tableViewRegulars->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_settings.restoreColumnWidths(ui->tableViewRegulars);
+    m_settings.trackColumnWidths(ui->tableViewRegulars);
 }
 
 DlgRegularSingers::~DlgRegularSingers()

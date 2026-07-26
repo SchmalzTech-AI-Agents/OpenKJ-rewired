@@ -283,6 +283,8 @@ void Settings::saveColumnWidths(QTreeView *treeView)
 void Settings::saveColumnWidths(QTableView *tableView)
 {
     settings->beginGroup(tableView->objectName());
+    settings->setValue("sections", tableView->horizontalHeader()->count());
+    settings->setValue("headerState", tableView->horizontalHeader()->saveState());
     for (int i=0; i < tableView->horizontalHeader()->count(); i++)
     {
         settings->beginGroup(QString::number(i));
@@ -290,6 +292,31 @@ void Settings::saveColumnWidths(QTableView *tableView)
         settings->setValue("hidden", tableView->horizontalHeader()->isSectionHidden(i));
         settings->endGroup();
     }
+    settings->endGroup();
+}
+
+void Settings::trackColumnWidths(QTableView *tableView)
+{
+    if (tableView->property("columnWidthsTracked").toBool())
+        return;
+
+    tableView->setProperty("columnWidthsTracked", true);
+    connect(tableView->horizontalHeader(), &QHeaderView::sectionResized, tableView,
+            [this, tableView](int, int, int) { saveColumnWidths(tableView); });
+    connect(tableView->horizontalHeader(), &QHeaderView::sectionMoved, tableView,
+            [this, tableView](int, int, int) { saveColumnWidths(tableView); });
+    saveColumnWidths(tableView);
+}
+
+void Settings::resetColumnWidths(QTableView *tableView)
+{
+    resetColumnWidths(tableView->objectName());
+}
+
+void Settings::resetColumnWidths(const QString &objectName)
+{
+    settings->beginGroup(objectName);
+    settings->remove("");
     settings->endGroup();
 }
 
@@ -308,6 +335,14 @@ bool Settings::restoreColumnWidths(QTableView *tableView)
     if (m_safeStartupMode || !settings->childGroups().contains(tableView->objectName()))
         return false;
     settings->beginGroup(tableView->objectName());
+    const int sectionCount = tableView->horizontalHeader()->count();
+    if (settings->value("sections", sectionCount).toInt() == sectionCount &&
+        settings->contains("headerState"))
+    {
+        tableView->horizontalHeader()->restoreState(settings->value("headerState").toByteArray());
+        settings->endGroup();
+        return true;
+    }
     QStringList headers = settings->childGroups();
     for (int i=0; i < headers.size(); i++)
     {
@@ -315,8 +350,12 @@ bool Settings::restoreColumnWidths(QTableView *tableView)
         int section = headers.at(i).toInt();
         bool hidden = settings->value("hidden", false).toBool();
         int size = settings->value("size", 0).toInt();
-        tableView->horizontalHeader()->resizeSection(section, size);
-        tableView->horizontalHeader()->setSectionHidden(section, hidden);
+        if (section >= 0 && section < sectionCount)
+        {
+            if (size > 0)
+                tableView->horizontalHeader()->resizeSection(section, size);
+            tableView->horizontalHeader()->setSectionHidden(section, hidden);
+        }
         settings->endGroup();
     }
     settings->endGroup();

@@ -108,7 +108,12 @@ DlgRequests::DlgRequests(TableModelRotation &rotationModel, OKJSongbookAPI &song
     QSize mcbSize(fm.height(), fm.height());
     ui->spinBoxKey->setMaximum(12);
     ui->spinBoxKey->setMinimum(-12);
-    autoSizeViews();
+    if (!m_settings.restoreColumnWidths(ui->tableViewRequests))
+        autoSizeViews();
+    if (!m_settings.restoreColumnWidths(ui->tableViewSearch))
+        autoSizeViews();
+    m_settings.trackColumnWidths(ui->tableViewRequests);
+    m_settings.trackColumnWidths(ui->tableViewSearch);
     if (!m_settings.testingEnabled())
         ui->pushButtonRunTortureTest->hide();
     connect(&songbookApi, &OKJSongbookAPI::requestsChanged, this, &DlgRequests::requestsChanged);
@@ -130,7 +135,6 @@ void DlgRequests::databaseAboutToUpdate() {
 
 void DlgRequests::databaseUpdateComplete() {
     dbModel.loadData();
-    autoSizeViews();
 }
 
 void DlgRequests::databaseSongAdded() {
@@ -513,13 +517,11 @@ void DlgRequests::autoSizeViews() {
 
 void DlgRequests::resizeEvent(QResizeEvent *event) {
     QDialog::resizeEvent(event);
-    autoSizeViews();
 }
 
 
 void DlgRequests::showEvent(QShowEvent *event) {
     QDialog::showEvent(event);
-    autoSizeViews();
     ui->comboBoxAddPosition->setCurrentIndex(m_settings.lastSingerAddPositionType());
 }
 

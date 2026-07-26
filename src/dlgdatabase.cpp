@@ -39,6 +39,8 @@ DlgDatabase::DlgDatabase(TableModelKaraokeSongs &dbModel, QWidget *parent) :
     ui->tableViewFolders->setModel(sourcedirmodel);
     ui->tableViewFolders->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->tableViewFolders->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_settings.restoreColumnWidths(ui->tableViewFolders);
+    m_settings.trackColumnWidths(ui->tableViewFolders);
     connect(ui->tableViewFolders->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DlgDatabase::on_foldersSelectionChanged);
     updateButtonsState();
     customPatternsDlg = new DlgCustomPatterns(this);

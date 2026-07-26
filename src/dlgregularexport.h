@@ -25,6 +25,7 @@
 #include "models/tablemodelhistorysingers.h"
 #include "models/tablemodelhistorysongs.h"
 #include "models/tablemodelkaraokesongs.h"
+#include "settings.h"
 
 namespace Ui {
 class DlgRegularExport;
@@ -39,6 +40,7 @@ private:
     TableModelKaraokeSongs &m_karaokeSongsModel;
     TableModelHistorySingers m_historySingersModel;
     TableModelHistorySongs m_historySongsModel{m_karaokeSongsModel};
+    Settings m_settings;
     void exportSingers(const std::vector<int> &historySingerIds, const QString &savePath);
 
 public:

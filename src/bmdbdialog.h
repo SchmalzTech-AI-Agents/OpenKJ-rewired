@@ -26,6 +26,7 @@
 #include <QSqlTableModel>
 #include <QSqlDatabase>
 #include "dlgdbupdate.h"
+#include "settings.h"
 
 
 namespace Ui {
@@ -55,6 +56,7 @@ signals:
 private:
     std::unique_ptr<Ui::BmDbDialog> ui;
     QSqlTableModel m_pathsModel;
+    Settings m_settings;
     DlgDbUpdate m_dbUpdateDlg{this};
 };
 

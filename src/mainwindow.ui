@@ -3368,6 +3368,7 @@ QPushButton:default {
      <string>Tools</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionReset_Column_Widths"/>
     <addaction name="actionSongbook_Generator"/>
     <addaction name="actionEqualizer"/>
     <addaction name="separator"/>
@@ -3466,6 +3467,11 @@ QPushButton:default {
   <action name="actionIncoming_Requests">
    <property name="text">
     <string>Incoming Requests</string>
+   </property>
+  </action>
+  <action name="actionReset_Column_Widths">
+   <property name="text">
+    <string>Reset Column Widths</string>
    </property>
   </action>
   <action name="actionSettings">

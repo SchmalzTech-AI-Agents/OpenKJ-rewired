@@ -185,6 +185,7 @@ private slots:
     void actionExportRegularsTriggered();
     void actionImportRegularsTriggered();
     void actionSettingsTriggered();
+    void resetColumnWidthsTriggered();
     void songDroppedOnSinger(const int &singerId, const int &songId, const int &dropRow);
     void tableViewQueueClicked(const QModelIndex &index);
     void clearRotation();
