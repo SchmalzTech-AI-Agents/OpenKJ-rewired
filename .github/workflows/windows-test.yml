@@ -17,8 +17,7 @@ jobs:
           - windows-arch: 64
             bits: 64
             arch: x86_64
-            msvcarch: x64
-            qtarch: win64_msvc2019_64
+            qtarch: win64_mingw81
 
     steps:
     - uses: actions/checkout@v4
@@ -81,16 +80,11 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
-    - name: Set up Visual Studio shell
-      uses: egor-tensin/vs-shell@v2
-      with:
-        arch: ${{ matrix.msvcarch }}
-
     - name: Configure CMake
       shell: cmd
       working-directory: ${{github.workspace}}/build
       run: |
-        cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
+        cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
 
     - name: Build
       working-directory: ${{github.workspace}}/build
