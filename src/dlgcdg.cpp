@@ -393,7 +393,11 @@ TransparentWidget::~TransparentWidget()
 
 void TransparentWidget::mouseMoveEvent(QMouseEvent *event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    this->move(event->globalPosition().toPoint() + m_startPoint);
+#else
     this->move(event->globalPos() + m_startPoint);
+#endif
     m_settings.setDurationPosition(this->pos());
 }
 
@@ -405,7 +409,11 @@ void TransparentWidget::moveEvent(QMoveEvent *event)
 
 void TransparentWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        m_startPoint = frameGeometry().topLeft() - event->globalPosition().toPoint();
+#else
         m_startPoint = frameGeometry().topLeft() - event->globalPos();
+#endif
     }
 }
 
@@ -424,13 +432,12 @@ TransparentWidget::TransparentWidget(QWidget *parent)
     setWindowFlags(Qt::FramelessWindowHint);
     auto layout = new QHBoxLayout(this);
     setLayout(layout);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->setContentsMargins(0,0,0,0);
     setContentsMargins(0,0,0,0);
     m_label = std::make_unique<QLabel>(this);
     layout->addWidget(m_label.get());
-    m_label->setMargin(0);
+    m_label->setContentsMargins(0, 0, 0, 0);
     m_label->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     m_label->setText("00:00");
     m_label->setAutoFillBackground(true);
