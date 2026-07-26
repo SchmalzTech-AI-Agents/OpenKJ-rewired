@@ -20,7 +20,6 @@
 
 #include "dlgcdg.h"
 #include "ui_dlgcdg.h"
-#include <QDesktopWidget>
 #include <QSvgRenderer>
 #include <QPainter>
 #include <QDir>
@@ -152,8 +151,8 @@ void DlgCdg::mouseDoubleClickEvent([[maybe_unused]]QMouseEvent *e)
     cdgOffsetsChanged();
     m_settings.setCdgWindowFullscreen(m_fullScreen);
     m_settings.saveWindowState(this);
-    QDesktopWidget widget;
-    m_settings.setCdgWindowFullscreenMonitor(widget.screenNumber(this));
+    const auto screen = QGuiApplication::screenAt(frameGeometry().center());
+    m_settings.setCdgWindowFullscreenMonitor(screen ? QGuiApplication::screens().indexOf(screen) : 0);
 }
 
 QFileInfoList DlgCdg::getSlideShowImages()
@@ -333,8 +332,8 @@ void DlgCdg::btnToggleFullscreenClicked()
         showNormal();
     m_settings.setCdgWindowFullscreen(m_fullScreen);
     m_settings.saveWindowState(this);
-    QDesktopWidget widget;
-    m_settings.setCdgWindowFullscreenMonitor(widget.screenNumber(this));
+    const auto screen = QGuiApplication::screenAt(frameGeometry().center());
+    m_settings.setCdgWindowFullscreenMonitor(screen ? QGuiApplication::screens().indexOf(screen) : 0);
     cdgOffsetsChanged();
 }
 

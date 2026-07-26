@@ -1,0 +1,49 @@
+/* OpenKJ Rewired shared visual foundation. Keep behavior-specific styling in Qt Designer. */
+QWidget {
+    font-size: 10pt;
+}
+QMainWindow, QDialog {
+    background: palette(window);
+}
+QGroupBox {
+    border: 1px solid palette(mid);
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 10px 8px 8px 8px;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+}
+QTableView, QTreeView, QListView {
+    alternate-background-color: palette(alternate-base);
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlighted-text);
+}
+QHeaderView::section {
+    padding: 6px 8px;
+    border: 0;
+    border-bottom: 1px solid palette(mid);
+    font-weight: 600;
+}
+QPushButton, QToolButton {
+    min-height: 26px;
+    padding: 3px 10px;
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+}
+QPushButton:hover, QToolButton:hover {
+    border-color: palette(highlight);
+}
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+    min-height: 26px;
+    padding: 2px 6px;
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+}
+QStatusBar {
+    border-top: 1px solid palette(mid);
+}

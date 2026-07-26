@@ -24,6 +24,7 @@
 #include <QSplashScreen>
 #include <QStringList>
 #include <QMessageBox>
+#include <QFile>
 #include "settings.h"
 #include "idledetect.h"
 #include "runguard/runguard.h"
@@ -151,7 +152,13 @@ int main(int argc, char *argv[]) {
 
     //QLoggingCategory::setFilterRules("*.debug=true");
     qInstallMessageHandler(myMessageOutput);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
     QApplication a(argc, argv);
+    QFile themeFile(":/openkj-theme.qss");
+    if (themeFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        a.setStyleSheet(QString::fromUtf8(themeFile.readAll()));
 
 #ifdef MAC_OVERRIDE_GST
     // This points GStreamer paths to the framework contained in the app bundle.  Not needed on brew installs.
@@ -168,7 +175,6 @@ int main(int argc, char *argv[]) {
 
     a.installEventFilter(filter);
     qputenv("GST_DEBUG", "*:3");
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     if (settings.theme() == 1) {
         QPalette palette;
         QApplication::setStyle(QStyleFactory::create("Fusion"));

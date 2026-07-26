@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.24)
 
 file(READ "src/okjversion.h" vercontents)
 string(REGEX MATCH "OKJ_VERSION_MAJOR ([0-9]*)" _ ${vercontents})
@@ -18,6 +18,9 @@ project(openkj
         LANGUAGES CXX C
         )
 
+include(CTest)
+enable_testing()
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOMOC ON)
@@ -27,8 +30,12 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
+# Prefer Qt 6 for new builds, while retaining a Qt 5 compatibility path for
+# distributions that have not packaged Qt 6 yet.  The source remains portable
+# across both versions during the migration.
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Sql Network Widgets Concurrent Svg PrintSupport REQUIRED)
+message(STATUS "Using Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}")
 
 include_directories(
         src/
@@ -58,20 +65,16 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "FreeBS
     else ()
         set(STATIC_TAGLIB True)
     endif ()
-    if (NOT DEFINED SPDLOG_USE_CPM AND NOT DEFINED SPDLOG_USE_BUNDLED)
+    option(OPENKJ_USE_SYSTEM_SPDLOG "Use the distribution spdlog package" OFF)
+    if (OPENKJ_USE_SYSTEM_SPDLOG AND NOT SPDLOG_USE_CPM AND NOT SPDLOG_USE_BUNDLED)
         pkg_check_modules(SPDLOG IMPORTED_TARGET spdlog)
         if (SPDLOG_FOUND)
             message(STATUS "Using OS installed spdlog")
             add_definitions(-DSPDLOG_FMT_EXTERNAL)
-            link_directories(${SPDLOG_LIBRARY_DIRS})
-            include_directories(${SPDLOG_INCLUDE_DIRS})
             set(EXTERNAL_SPDLOG True)
-            #        include_directories(
-            #                ${SPDLOG_INCLUDE_DIRS}
-            #        )
         endif ()
     else ()
-        message("SPDLOG_USE_CPM or SPDLOG_USE_BUNDLED defined, ignoring OS packages")
+        message(STATUS "Using the pinned spdlog fallback")
     endif ()
 endif ()
 
@@ -706,16 +709,16 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     )
 
     if (DEFINED DEPLOY_DEPS)
-        get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
+        get_target_property(_qt_qmake_location Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
         execute_process(
-                COMMAND "${_qt5_qmake_location}" -query QT_INSTALL_PREFIX
+                COMMAND "${_qt_qmake_location}" -query QT_INSTALL_PREFIX
                 RESULT_VARIABLE return_code
-                OUTPUT_VARIABLE qt5_install_prefix
+                OUTPUT_VARIABLE qt_install_prefix
                 OUTPUT_STRIP_TRAILING_WHITESPACE
         )
         install(DIRECTORY "${GST_BASE_PATH}/bin/" DESTINATION "bin")
-        if (qt5_install_prefix)
-            find_program(WINDEPLOYQT windeployqt HINTS ${qt5_install_prefix} PATH_SUFFIXES bin)
+        if (qt_install_prefix)
+            find_program(WINDEPLOYQT windeployqt HINTS ${qt_install_prefix} PATH_SUFFIXES bin)
             if (WINDEPLOYQT)
                 add_custom_command(
                         TARGET openkj
@@ -738,4 +741,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     endif ()
 endif ()
 
-
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+add_test(
+        NAME repository-invariants
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_repository.py"
+)

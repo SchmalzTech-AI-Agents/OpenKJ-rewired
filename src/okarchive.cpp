@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QBuffer>
 #include <QTemporaryDir>
+#include <QRegularExpression>
 #ifdef Q_OS_WIN
 #include <io.h>
 #else
@@ -321,11 +322,7 @@ zipEntries OkArchive::getZipContents()
         return zipEntries();
     }
     m_logger->trace("{} Infozip output: \n{}",m_loggingPrefix, output);
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    QStringList data = output.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-#else
-    QStringList data = output.split(QRegExp("[\r\n]"),Qt::SkipEmptyParts);
-#endif
+    QStringList data = output.split(QRegularExpression("[\\r\\n]"), Qt::SkipEmptyParts);
     int fnStart = 0;
     int listStart = 0;
     for (int l=0; l < data.size(); l++)
