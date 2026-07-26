@@ -592,7 +592,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sliderBmVolume->setMaximumWidth(12);
     ui->sliderProgress->setMaximumHeight(12);
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QDir okjDataDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+#else
     QDir okjDataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+#endif
     if (!okjDataDir.exists()) {
         okjDataDir.mkpath(okjDataDir.absolutePath());
     }

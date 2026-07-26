@@ -28,7 +28,7 @@ jobs:
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libtag1-dev libspdlog-dev
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: cpp
       - name: Configure
@@ -36,4 +36,4 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
       - name: Analyze
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4

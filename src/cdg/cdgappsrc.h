@@ -4,6 +4,9 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <QMutex>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QRecursiveMutex>
+#endif
 #include "cdgfilereader.h"
 #include <spdlog/logger.h>
 
@@ -15,7 +18,11 @@ private:
 
     CdgFileReader *m_cdgFileReader { nullptr };
     std::atomic<bool> g_appSrcNeedData { false };
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QRecursiveMutex m_cdgFileReaderLock;
+#else
     QMutex m_cdgFileReaderLock { QMutex(QMutex::Recursive) };
+#endif
 
     // AppSrc callbacks
     static void cb_need_data(GstAppSrc *appsrc, guint unused_size, gpointer user_data);
