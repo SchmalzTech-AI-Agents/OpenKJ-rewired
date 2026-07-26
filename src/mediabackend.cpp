@@ -304,7 +304,10 @@ void MediaBackend::resetPipeline()
     // Stop pipeline
     gst_element_set_state(m_pipeline, GST_STATE_NULL);
 
-    m_hasVideo = false;
+    const bool hadActiveVideo = m_hasVideo.exchange(false);
+    if (hadActiveVideo)
+        emit hasActiveVideoChanged(false);
+
     gst_element_unlink(m_decoder, m_audioBin);
     gst_element_unlink(m_decoder, m_videoBin);
     gst_element_unlink(m_cdgSrc->getSrcElement(), m_videoBin);
