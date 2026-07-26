@@ -74,9 +74,36 @@ jobs:
         run: cmake --build build --parallel
       - name: Test
         run: ctest --test-dir build --output-on-failure
-      - name: Upload Windows artifact
+      - name: Assemble portable Windows collection
+        run: |
+          rm -rf dist
+          mkdir -p dist/lib dist/libexec
+          cp build/openkj.exe dist/openkj.exe
+          windeployqt --release --compiler-runtime --no-translations --dir dist build/openkj.exe
+          if [ -d "$MSYSTEM_PREFIX/lib/gstreamer-1.0" ]; then
+            cp -a "$MSYSTEM_PREFIX/lib/gstreamer-1.0" dist/lib/
+          fi
+          if [ -d "$MSYSTEM_PREFIX/libexec/gstreamer-1.0" ]; then
+            cp -a "$MSYSTEM_PREFIX/libexec/gstreamer-1.0" dist/libexec/
+          fi
+          mkdir -p dist/share
+          for support_dir in gstreamer-1.0 glib-2.0; do
+            if [ -d "$MSYSTEM_PREFIX/share/$support_dir" ]; then
+              cp -a "$MSYSTEM_PREFIX/share/$support_dir" dist/share/
+            fi
+          done
+          cp packaging/windows/run-openkj.bat dist/run-openkj.bat
+          cp packaging/windows/README-WINDOWS.txt dist/README-WINDOWS.txt
+          python packaging/windows/collect_runtime_deps.py \
+            --bundle dist \
+            --prefix "$MSYSTEM_PREFIX" \
+            --executable dist/openkj.exe
+          test -s dist/openkj.exe
+          test -s dist/run-openkj.bat
+          find dist -type f -printf '%P\n' | sort
+      - name: Upload Windows portable collection
         uses: actions/upload-artifact@v4
         with:
-          name: openkj-rewired-windows-x86_64
-          path: build/openkj.exe
+          name: openkj-rewired-windows-x86_64-portable
+          path: dist
           if-no-files-found: error

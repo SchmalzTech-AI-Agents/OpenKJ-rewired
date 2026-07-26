@@ -25,4 +25,23 @@ for forbidden in ("stripe", "creditCard", "SongShop"):
     if forbidden.casefold() in source.casefold():
         raise SystemExit(f"retired purchase/account functionality reintroduced: {forbidden}")
 
+windows_workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+for marker in (
+    "windeployqt --release --compiler-runtime",
+    "openkj-rewired-windows-x86_64-portable",
+    "collect_runtime_deps.py",
+):
+    if marker not in windows_workflow:
+        raise SystemExit(f"portable Windows packaging marker missing: {marker}")
+launcher = (root / "packaging" / "windows" / "run-openkj.bat").read_text(encoding="utf-8")
+if "GST_PLUGIN_PATH" not in launcher:
+    raise SystemExit("portable GStreamer launcher configuration is missing")
+for path in (
+    root / "packaging" / "windows" / "collect_runtime_deps.py",
+    root / "packaging" / "windows" / "run-openkj.bat",
+    root / "packaging" / "windows" / "README-WINDOWS.txt",
+):
+    if not path.is_file():
+        raise SystemExit(f"portable Windows packaging file missing: {path.relative_to(root)}")
+
 print("repository invariants: PASS")
