@@ -16,7 +16,15 @@ if "find_package(QT NAMES Qt6 Qt5" not in cmake:
     raise SystemExit("Qt 6-first package discovery is missing")
 
 settings = (root / "src" / "settings.cpp").read_text(encoding="utf-8")
-for marker in ("saveState()", "restoreState", "resetColumnWidths", "legacyPurchaseSettingsRemoved"):
+for marker in (
+    "saveState()",
+    "restoreState",
+    "resetColumnWidths",
+    "legacyPurchaseSettingsRemoved",
+    "OpenKJ-rewired",
+    "QFile::copy",
+    "legacySettingsPath",
+):
     if marker not in settings:
         raise SystemExit(f"settings regression marker missing: {marker}")
 

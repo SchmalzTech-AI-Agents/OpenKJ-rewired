@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QUuid>
@@ -185,24 +186,28 @@ Settings::Settings(QObject *parent) :
 #ifdef Q_OS_LINUX
     settings = new QSettings(this);
 #else
+#ifdef Q_OS_WIN
+    QDir khDir(QDir(qEnvironmentVariable("LOCALAPPDATA"))
+            .absoluteFilePath(QStringLiteral("OpenKJ-rewired")));
+#else
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QDir khDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #else
     QDir khDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 #endif
+#endif
     if (!khDir.exists())
     {
         khDir.mkpath(khDir.absolutePath());
     }
-    QString settingsPath = khDir.absoluteFilePath("openkj.ini");
+    const QString settingsPath = khDir.absoluteFilePath("openkj.ini");
 #ifdef Q_OS_WIN
-    // Qt 5 stored the original settings at %LOCALAPPDATA%\\OpenKJ\\openkj.ini.
-    // Keep using that file when the Qt 6 location has not been initialized yet.
+    // Import the original settings once, while keeping the original file intact.
     const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
             .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + QStringLiteral("openkj.ini"));
     if (!QFileInfo::exists(settingsPath) && QFileInfo::exists(legacySettingsPath))
     {
-        settingsPath = legacySettingsPath;
+        QFile::copy(legacySettingsPath, settingsPath);
     }
 #endif
     settings = new QSettings(settingsPath, QSettings::IniFormat);
