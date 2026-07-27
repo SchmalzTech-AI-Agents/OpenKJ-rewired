@@ -205,12 +205,35 @@ Settings::Settings(QObject *parent) :
     // Import the original settings once, while keeping the original file intact.
     const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
             .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + QStringLiteral("openkj.ini"));
-    if (!QFileInfo::exists(settingsPath) && QFileInfo::exists(legacySettingsPath))
+    const QString migrationMarker = QStringLiteral("legacySettingsMigrationCompleted");
+    bool migrationComplete = !QFileInfo::exists(legacySettingsPath);
+    if (QFileInfo::exists(legacySettingsPath))
     {
-        QFile::copy(legacySettingsPath, settingsPath);
+        bool shouldImportLegacy = !QFileInfo::exists(settingsPath);
+        if (!shouldImportLegacy)
+        {
+            QSettings currentSettings(settingsPath, QSettings::IniFormat);
+            shouldImportLegacy = !currentSettings.value(migrationMarker, false).toBool();
+        }
+        if (shouldImportLegacy)
+        {
+            QFile::remove(settingsPath);
+            migrationComplete = QFile::copy(legacySettingsPath, settingsPath);
+        }
+        else
+        {
+            migrationComplete = true;
+        }
     }
 #endif
     settings = new QSettings(settingsPath, QSettings::IniFormat);
+#ifdef Q_OS_WIN
+    if (migrationComplete && !settings->value(migrationMarker, false).toBool())
+    {
+        settings->setValue(migrationMarker, true);
+        settings->sync();
+    }
+#endif
 #endif
 
     // Remove credentials and card data left by the retired song-purchase feature.

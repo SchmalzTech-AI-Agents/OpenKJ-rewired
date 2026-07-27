@@ -24,6 +24,8 @@ for marker in (
     "OpenKJ-rewired",
     "QFile::copy",
     "legacySettingsPath",
+    "legacySettingsMigrationCompleted",
+    "migrationComplete",
 ):
     if marker not in settings:
         raise SystemExit(f"settings regression marker missing: {marker}")
