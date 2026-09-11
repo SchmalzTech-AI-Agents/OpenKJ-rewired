@@ -3368,6 +3368,7 @@ QPushButton:default {
      <string>Tools</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionImport_Original_Settings"/>
     <addaction name="actionReset_Column_Widths"/>
     <addaction name="actionSongbook_Generator"/>
     <addaction name="actionEqualizer"/>
@@ -3477,6 +3478,11 @@ QPushButton:default {
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionImport_Original_Settings">
+   <property name="text">
+    <string>Import Original OpenKJ Settings...</string>
    </property>
   </action>
   <action name="actionExport_Regular_Singers">

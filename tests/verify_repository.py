@@ -26,9 +26,18 @@ for marker in (
     "legacySettingsPath",
     "legacySettingsMigrationCompleted",
     "migrationComplete",
+    "importLegacyWindowsSettings",
+    "pre-import-",
 ):
     if marker not in settings:
         raise SystemExit(f"settings regression marker missing: {marker}")
+
+mainwindow = (root / "src" / "mainwindow.cpp").read_text(encoding="utf-8")
+mainwindow_ui = (root / "src" / "mainwindow.ui").read_text(encoding="utf-8")
+if "actionImportOriginalSettingsTriggered" not in mainwindow:
+    raise SystemExit("manual settings import handler missing")
+if "actionImport_Original_Settings" not in mainwindow_ui:
+    raise SystemExit("manual settings import menu item missing")
 
 source = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in (root / "src").rglob("*.cpp"))
 for forbidden in ("stripe", "creditCard", "SongShop"):

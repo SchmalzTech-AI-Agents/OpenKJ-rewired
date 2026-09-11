@@ -991,6 +991,7 @@ void MainWindow::setupConnections() {
     connect(ui->actionManage_Karaoke_DB, &QAction::triggered, dbDialog.get(), &DlgDatabase::showNormal);
     connect(ui->actionExport_Regulars, &QAction::triggered, this, &MainWindow::actionExportRegularsTriggered);
     connect(ui->actionImport_Regulars, &QAction::triggered, this, &MainWindow::actionImportRegularsTriggered);
+    connect(ui->actionImport_Original_Settings, &QAction::triggered, this, &MainWindow::actionImportOriginalSettingsTriggered);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::actionSettingsTriggered);
     connect(ui->actionReset_Column_Widths, &QAction::triggered, this, &MainWindow::resetColumnWidthsTriggered);
     connect(ui->actionRegulars, &QAction::triggered, &m_dlgRegularSingers, &DlgRegularSingers::showNormal);
@@ -1742,6 +1743,35 @@ void MainWindow::actionImportRegularsTriggered() {
     auto iDialog = new DlgRegularImport(m_karaokeSongsModel, this);
     iDialog->setModal(true);
     iDialog->show();
+}
+
+void MainWindow::actionImportOriginalSettingsTriggered()
+{
+#ifndef Q_OS_WIN
+    QMessageBox::information(this, tr("Import Original Settings"),
+                             tr("Importing original OpenKJ settings is available only on Windows."));
+#else
+    const auto response = QMessageBox::warning(
+            this, tr("Import Original Settings"),
+            tr("This will replace this copy's settings with settings from the original OpenKJ installation. "
+               "The original settings file will not be changed.\n\n"
+               "A timestamped backup of the current OpenKJ-rewired settings will be created, and OpenKJ-rewired "
+               "must be restarted after the import."),
+            QMessageBox::Cancel | QMessageBox::Yes, QMessageBox::Cancel);
+    if (response != QMessageBox::Yes)
+        return;
+
+    QString errorMessage;
+    if (!m_settings.importLegacyWindowsSettings(&errorMessage))
+    {
+        QMessageBox::critical(this, tr("Import Original Settings"), errorMessage);
+        return;
+    }
+
+    QMessageBox::information(this, tr("Import Original Settings"),
+                             tr("The original OpenKJ settings were imported successfully. "
+                                "Restart OpenKJ-rewired now to load them."));
+#endif
 }
 
 void MainWindow::resetColumnWidthsTriggered() {

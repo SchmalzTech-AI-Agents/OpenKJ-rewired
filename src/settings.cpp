@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
 #include <QFontDatabase>
@@ -249,6 +250,80 @@ Settings::Settings(QObject *parent) :
         settings->setValue("legacyPurchaseSettingsRemoved", true);
         settings->sync();
     }
+}
+
+bool Settings::importLegacyWindowsSettings(QString *errorMessage)
+{
+#ifndef Q_OS_WIN
+    if (errorMessage)
+        *errorMessage = tr("Importing original OpenKJ settings is available only on Windows.");
+    return false;
+#else
+    const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
+            .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + QStringLiteral("openkj.ini"));
+    const QString settingsPath = settings->fileName();
+    if (!QFileInfo::exists(legacySettingsPath))
+    {
+        if (errorMessage)
+            *errorMessage = tr("The original OpenKJ settings file was not found at:\n%1")
+                    .arg(QDir::toNativeSeparators(legacySettingsPath));
+        return false;
+    }
+
+    settings->sync();
+    if (settings->status() != QSettings::NoError)
+    {
+        if (errorMessage)
+            *errorMessage = tr("Could not save the current OpenKJ-rewired settings before importing.");
+        return false;
+    }
+
+    const bool hasCurrentSettings = QFileInfo::exists(settingsPath);
+    const QString backupPath = settingsPath + QStringLiteral(".pre-import-")
+            + QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyyMMdd-HHmmsszzz"))
+            + QStringLiteral(".bak");
+    if (hasCurrentSettings && !QFile::copy(settingsPath, backupPath))
+    {
+        if (errorMessage)
+            *errorMessage = tr("Could not create a backup of the current settings at:\n%1")
+                    .arg(QDir::toNativeSeparators(backupPath));
+        return false;
+    }
+
+    delete settings;
+    settings = nullptr;
+    if ((hasCurrentSettings && !QFile::remove(settingsPath)) || !QFile::copy(legacySettingsPath, settingsPath))
+    {
+        if (hasCurrentSettings)
+        {
+            QFile::remove(settingsPath);
+            QFile::copy(backupPath, settingsPath);
+        }
+        settings = new QSettings(settingsPath, QSettings::IniFormat, this);
+        if (errorMessage)
+            *errorMessage = tr("Could not import the original OpenKJ settings. Your previous settings were restored.");
+        return false;
+    }
+
+    settings = new QSettings(settingsPath, QSettings::IniFormat, this);
+    settings->remove("pchk");
+    settings->remove("cc");
+    settings->remove("saveCC");
+    settings->remove("karaokeDotNetUser");
+    settings->remove("karaokeDotNetPass");
+    settings->remove("saveKNAccount");
+    settings->remove("storeDownloadDir");
+    settings->setValue("legacyPurchaseSettingsRemoved", true);
+    settings->setValue("legacySettingsMigrationCompleted", true);
+    settings->sync();
+    if (settings->status() != QSettings::NoError)
+    {
+        if (errorMessage)
+            *errorMessage = tr("The settings were imported, but could not be finalized. Restart OpenKJ-rewired before using it.");
+        return false;
+    }
+    return true;
+#endif
 }
 
 bool Settings::cdgWindowFullscreen()

@@ -256,6 +256,7 @@ public:
     QColor cdgRemainBgColor();
     [[nodiscard]] bool rotationShowNextSong() const;
     void sync();
+    bool importLegacyWindowsSettings(QString *errorMessage = nullptr);
     bool previewEnabled();
     bool showMainWindowVideo();
     bool showMainWindowSoundClips();
