@@ -15,6 +15,8 @@ for marker in (
     'legacyDatabaseMigrationCompleted',
     'legacyDatabasePath',
     'legacySettingsMigrationVersion',
+    'legacyProfileDir.absoluteFilePath(QStringLiteral("OpenKJ")',
+    '!settings->value("legacyDatabaseMigrationCompleted", false).toBool()',
 ):
     if marker not in settings:
         raise SystemExit(f"Windows profile migration marker missing: {marker}")

@@ -239,7 +239,8 @@ Settings::Settings(QObject *parent) :
         settings->setValue(migrationVersionMarker, legacySettingsMigrationVersion);
         settings->sync();
     }
-    const bool replaceCurrentDatabase = settings->value("legacyDatabaseImportRequested", false).toBool();
+    const bool replaceCurrentDatabase = settings->value("legacyDatabaseImportRequested", false).toBool()
+            || !settings->value("legacyDatabaseMigrationCompleted", false).toBool();
     if (migrateLegacyWindowsDatabase(replaceCurrentDatabase))
     {
         settings->setValue("legacyDatabaseMigrationCompleted", true);
@@ -283,8 +284,14 @@ bool Settings::migrateLegacyWindowsDatabase(bool replaceCurrentDatabase)
             .absoluteFilePath(QStringLiteral("OpenKJ")));
     const QStringList legacyDatabaseCandidates{
             legacyProfileDir.absoluteFilePath(databaseName),
+            legacyProfileDir.absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + databaseName),
             QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
-                    .absoluteFilePath(databaseName)
+                    .absoluteFilePath(databaseName),
+            QDir(qEnvironmentVariable("APPDATA"))
+                    .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + databaseName),
+            QDir(qEnvironmentVariable("APPDATA"))
+                    .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator()
+                            + QStringLiteral("OpenKJ") + QDir::separator() + databaseName)
     };
     QString legacyDatabasePath;
     for (const QString &candidate : legacyDatabaseCandidates)
