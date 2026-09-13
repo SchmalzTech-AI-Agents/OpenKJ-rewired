@@ -53,6 +53,11 @@ for marker in (
     "windeployqt --release --compiler-runtime",
     "openkj-rewired-windows-x86_64-portable",
     "collect_runtime_deps.py",
+    "mingw-w64-x86_64-gst-plugins-good",
+    "mingw-w64-x86_64-gst-plugins-bad",
+    "mingw-w64-x86_64-gst-plugins-ugly",
+    "mingw-w64-x86_64-gst-libav",
+    "libgstlibav.dll",
 ):
     if marker not in windows_workflow:
         raise SystemExit(f"portable Windows packaging marker missing: {marker}")

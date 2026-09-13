@@ -65,6 +65,10 @@ jobs:
             mingw-w64-x86_64-qt6-svg
             mingw-w64-x86_64-gstreamer
             mingw-w64-x86_64-gst-plugins-base
+            mingw-w64-x86_64-gst-plugins-good
+            mingw-w64-x86_64-gst-plugins-bad
+            mingw-w64-x86_64-gst-plugins-ugly
+            mingw-w64-x86_64-gst-libav
             mingw-w64-x86_64-taglib
             mingw-w64-x86_64-spdlog
             mingw-w64-x86_64-python
@@ -98,6 +102,7 @@ jobs:
             --bundle dist \
             --prefix "$MSYSTEM_PREFIX" \
             --executable dist/openkj.exe
+          test -s dist/lib/gstreamer-1.0/libgstlibav.dll
           test -s dist/openkj.exe
           test -s dist/run-openkj.bat
           find dist -type f -printf '%P\n' | sort
