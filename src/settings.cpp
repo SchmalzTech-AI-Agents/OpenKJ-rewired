@@ -207,14 +207,17 @@ Settings::Settings(QObject *parent) :
     const QString legacySettingsPath = QDir(qEnvironmentVariable("LOCALAPPDATA"))
             .absoluteFilePath(QStringLiteral("OpenKJ") + QDir::separator() + QStringLiteral("openkj.ini"));
     const QString migrationMarker = QStringLiteral("legacySettingsMigrationCompleted");
-    bool migrationComplete = !QFileInfo::exists(legacySettingsPath);
+    const QString migrationVersionMarker = QStringLiteral("legacySettingsMigrationVersion");
+    constexpr int legacySettingsMigrationVersion = 2;
+    bool migrationComplete = false;
     if (QFileInfo::exists(legacySettingsPath))
     {
         bool shouldImportLegacy = !QFileInfo::exists(settingsPath);
         if (!shouldImportLegacy)
         {
             QSettings currentSettings(settingsPath, QSettings::IniFormat);
-            shouldImportLegacy = !currentSettings.value(migrationMarker, false).toBool();
+            shouldImportLegacy = currentSettings.value(migrationVersionMarker, 0).toInt()
+                    < legacySettingsMigrationVersion;
         }
         if (shouldImportLegacy)
         {
@@ -229,9 +232,18 @@ Settings::Settings(QObject *parent) :
 #endif
     settings = new QSettings(settingsPath, QSettings::IniFormat);
 #ifdef Q_OS_WIN
-    if (migrationComplete && !settings->value(migrationMarker, false).toBool())
+    if (migrationComplete && settings->value(migrationVersionMarker, 0).toInt()
+            < legacySettingsMigrationVersion)
     {
         settings->setValue(migrationMarker, true);
+        settings->setValue(migrationVersionMarker, legacySettingsMigrationVersion);
+        settings->sync();
+    }
+    const bool replaceCurrentDatabase = settings->value("legacyDatabaseImportRequested", false).toBool();
+    if (migrateLegacyWindowsDatabase(replaceCurrentDatabase))
+    {
+        settings->setValue("legacyDatabaseMigrationCompleted", true);
+        settings->remove("legacyDatabaseImportRequested");
         settings->sync();
     }
 #endif
@@ -251,6 +263,55 @@ Settings::Settings(QObject *parent) :
         settings->sync();
     }
 }
+
+#ifdef Q_OS_WIN
+QString Settings::rewiredWindowsDataDirectory() const
+{
+    return QDir(qEnvironmentVariable("LOCALAPPDATA"))
+            .absoluteFilePath(QStringLiteral("OpenKJ-rewired"));
+}
+
+bool Settings::migrateLegacyWindowsDatabase(bool replaceCurrentDatabase)
+{
+    const QDir rewiredDataDir(rewiredWindowsDataDirectory());
+    const QString databaseName = QStringLiteral("openkj.sqlite");
+    const QString rewiredDatabasePath = rewiredDataDir.absoluteFilePath(databaseName);
+    if (!replaceCurrentDatabase && QFileInfo::exists(rewiredDatabasePath))
+        return true;
+
+    const QDir legacyProfileDir(QDir(qEnvironmentVariable("LOCALAPPDATA"))
+            .absoluteFilePath(QStringLiteral("OpenKJ")));
+    const QStringList legacyDatabaseCandidates{
+            legacyProfileDir.absoluteFilePath(databaseName),
+            QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+                    .absoluteFilePath(databaseName)
+    };
+    QString legacyDatabasePath;
+    for (const QString &candidate : legacyDatabaseCandidates)
+    {
+        if (QFileInfo::exists(candidate))
+        {
+            legacyDatabasePath = candidate;
+            break;
+        }
+    }
+    if (legacyDatabasePath.isEmpty())
+        return false;
+
+    if (!rewiredDataDir.exists() && !QDir().mkpath(rewiredDataDir.absolutePath()))
+        return false;
+
+    if (replaceCurrentDatabase && QFileInfo::exists(rewiredDatabasePath))
+    {
+        const QString backupPath = rewiredDatabasePath + QStringLiteral(".pre-import-")
+                + QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyyMMdd-HHmmsszzz"))
+                + QStringLiteral(".bak");
+        if (!QFile::copy(rewiredDatabasePath, backupPath) || !QFile::remove(rewiredDatabasePath))
+            return false;
+    }
+    return QFile::copy(legacyDatabasePath, rewiredDatabasePath);
+}
+#endif
 
 bool Settings::importLegacyWindowsSettings(QString *errorMessage)
 {
@@ -315,6 +376,7 @@ bool Settings::importLegacyWindowsSettings(QString *errorMessage)
     settings->remove("storeDownloadDir");
     settings->setValue("legacyPurchaseSettingsRemoved", true);
     settings->setValue("legacySettingsMigrationCompleted", true);
+    settings->setValue("legacyDatabaseImportRequested", true);
     settings->sync();
     if (settings->status() != QSettings::NoError)
     {

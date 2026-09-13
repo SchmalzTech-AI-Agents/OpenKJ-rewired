@@ -52,6 +52,9 @@ class Settings : public QObject
 private:
     QSettings *settings;
     bool m_safeStartupMode{false};
+#ifdef Q_OS_WIN
+    bool migrateLegacyWindowsDatabase(bool replaceCurrentDatabase);
+#endif
 
 public:
     enum {
@@ -92,6 +95,9 @@ public:
     enum BgMode { BG_MODE_IMAGE = 0, BG_MODE_SLIDESHOW };
     enum PreviewSize { Small, Medium, Large };
     explicit Settings(QObject *parent = 0);
+#ifdef Q_OS_WIN
+    [[nodiscard]] QString rewiredWindowsDataDirectory() const;
+#endif
     bool cdgWindowFullscreen();
     bool showCdgWindow();
     void setCdgWindowFullscreenMonitor(int monitor);

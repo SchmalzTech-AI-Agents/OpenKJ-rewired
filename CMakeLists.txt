@@ -751,3 +751,7 @@ add_test(
         NAME repository-invariants
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_repository.py"
 )
+add_test(
+        NAME windows-profile-migration
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_windows_profile_migration.py"
+)

@@ -1,6 +1,6 @@
 #include "tagreader.h"
 #include <tag.h>
-#include <taglib/fileref.h>
+#include <fileref.h>
 
 TagReader::TagReader(QObject *parent) : QObject(parent)
 {

@@ -32,6 +32,10 @@ for marker in (
     if marker not in settings:
         raise SystemExit(f"settings regression marker missing: {marker}")
 
+tagreader = (root / "src" / "tagreader.cpp").read_text(encoding="utf-8")
+if "#include <fileref.h>" not in tagreader or "#include <taglib/fileref.h>" in tagreader:
+    raise SystemExit("TagLib include does not select the configured dependency")
+
 mainwindow = (root / "src" / "mainwindow.cpp").read_text(encoding="utf-8")
 mainwindow_ui = (root / "src" / "mainwindow.ui").read_text(encoding="utf-8")
 if "actionImportOriginalSettingsTriggered" not in mainwindow:

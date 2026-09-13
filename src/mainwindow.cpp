@@ -592,7 +592,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sliderBmVolume->setMaximumWidth(12);
     ui->sliderProgress->setMaximumHeight(12);
 #endif
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#ifdef Q_OS_WIN
+    QDir okjDataDir(m_settings.rewiredWindowsDataDirectory());
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QDir okjDataDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #else
     QDir okjDataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -1753,9 +1755,9 @@ void MainWindow::actionImportOriginalSettingsTriggered()
 #else
     const auto response = QMessageBox::warning(
             this, tr("Import Original Settings"),
-            tr("This will replace this copy's settings with settings from the original OpenKJ installation. "
+            "This will replace this copy's settings and database with data from the original OpenKJ installation. "
                "The original settings file will not be changed.\n\n"
-               "A timestamped backup of the current OpenKJ-rewired settings will be created, and OpenKJ-rewired "
+               "Timestamped backups of the current OpenKJ-rewired settings and database will be created, and OpenKJ-rewired "
                "must be restarted after the import."),
             QMessageBox::Cancel | QMessageBox::Yes, QMessageBox::Cancel);
     if (response != QMessageBox::Yes)
@@ -1769,7 +1771,7 @@ void MainWindow::actionImportOriginalSettingsTriggered()
     }
 
     QMessageBox::information(this, tr("Import Original Settings"),
-                             tr("The original OpenKJ settings were imported successfully. "
+                             tr("The original OpenKJ settings and database import were scheduled successfully. "
                                 "Restart OpenKJ-rewired now to load them."));
 #endif
 }
