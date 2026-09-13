@@ -22,5 +22,7 @@ for marker in (
 # Rewired must open its own database directory, after Settings has migrated it.
 if 'm_settings.rewiredWindowsDataDirectory()' not in mainwindow:
     raise SystemExit("MainWindow does not use the rewired Windows data directory")
+if 'tr("This will replace this copy\'s settings and database' not in mainwindow:
+    raise SystemExit("Windows import confirmation is not a complete translated argument")
 
 print("Windows profile migration regression checks: PASS")

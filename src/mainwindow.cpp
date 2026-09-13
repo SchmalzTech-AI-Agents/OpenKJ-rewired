@@ -1755,7 +1755,7 @@ void MainWindow::actionImportOriginalSettingsTriggered()
 #else
     const auto response = QMessageBox::warning(
             this, tr("Import Original Settings"),
-            "This will replace this copy's settings and database with data from the original OpenKJ installation. "
+            tr("This will replace this copy's settings and database with data from the original OpenKJ installation. "
                "The original settings file will not be changed.\n\n"
                "Timestamped backups of the current OpenKJ-rewired settings and database will be created, and OpenKJ-rewired "
                "must be restarted after the import."),
