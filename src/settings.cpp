@@ -239,11 +239,14 @@ Settings::Settings(QObject *parent) :
         settings->setValue(migrationVersionMarker, legacySettingsMigrationVersion);
         settings->sync();
     }
+    const QString databaseMigrationVersionMarker = QStringLiteral("legacyDatabaseMigrationVersion");
+    constexpr int legacyDatabaseMigrationVersion = 2;
     const bool replaceCurrentDatabase = settings->value("legacyDatabaseImportRequested", false).toBool()
-            || !settings->value("legacyDatabaseMigrationCompleted", false).toBool();
+            || settings->value(databaseMigrationVersionMarker, 0).toInt() < legacyDatabaseMigrationVersion;
     if (migrateLegacyWindowsDatabase(replaceCurrentDatabase))
     {
         settings->setValue("legacyDatabaseMigrationCompleted", true);
+        settings->setValue(databaseMigrationVersionMarker, legacyDatabaseMigrationVersion);
         settings->remove("legacyDatabaseImportRequested");
         settings->sync();
     }

@@ -13,10 +13,11 @@ for marker in (
     'QStringLiteral("openkj.sqlite")',
     'migrateLegacyWindowsDatabase',
     'legacyDatabaseMigrationCompleted',
+    'legacyDatabaseMigrationVersion',
     'legacyDatabasePath',
     'legacySettingsMigrationVersion',
     'legacyProfileDir.absoluteFilePath(QStringLiteral("OpenKJ")',
-    '!settings->value("legacyDatabaseMigrationCompleted", false).toBool()',
+    'settings->value(databaseMigrationVersionMarker, 0).toInt() < legacyDatabaseMigrationVersion',
 ):
     if marker not in settings:
         raise SystemExit(f"Windows profile migration marker missing: {marker}")
